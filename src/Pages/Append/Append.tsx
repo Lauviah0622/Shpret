@@ -3,7 +3,7 @@ import { Form, Input, Button } from "antd";
 import { useSelector } from "react-redux";
 
 import useSetSheetField from "../../hooks/useSetSheetFields";
-import { fileStateSelector } from "../../redux/feature/file/fileSlice";
+import { fileStateSelector } from "../../redux/feature/spreadSheet/spreadSheetSlice";
 import { schemaSelector } from "../../redux/feature/schema/schemaSlice";
 import { appendItemByField } from "../../gpai/spreadSheet";
 

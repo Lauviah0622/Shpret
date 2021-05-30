@@ -1,32 +1,59 @@
-import React, { useEffect } from "react";
+import React, { ChangeEventHandler, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
-import {Button} from 'antd';
+import { Button, WhiteSpace, WingBlank, List, InputItem } from "antd-mobile";
 
-import useSignHook from '../../hooks/useSign';
+import useSignHook from "../../hooks/useSign";
 
-const Wrapper = styled.div``;
+const Layout = styled.div`
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 10% auto 10%;
+`;
+
+const Title = styled.h3``;
+
+const Content = styled.div`
+  display: grid;
+  align-items: center;
+`;
 
 export default function Entry() {
-  const [signState, signIn, signOut] = useSignHook()
-  const handleSignInClick = () => {
-    signIn()
+  const [spreadSheetUrl, setSpreadSheetUrl] = useState<string>("");
+  const history = useHistory();
+
+  // 在 React 裡面要這樣用
+  const inputChangeHandler = (value:string) => {
+    setSpreadSheetUrl(value);
+  };
+
+  const submitBtnHandler = () => {
+    history.push(`/${spreadSheetUrl}`)
   }
-
-  const handleSignOutClick = () => {
-    signOut()
-  }
-
-  const history = useHistory()
-
-  
-  
   return (
-    <Wrapper>
-      <Button onClick={handleSignInClick}>Sign In</Button>
-      <Button onClick={handleSignOutClick}>Sign out</Button>
-      {JSON.stringify(signState)}
-    </Wrapper> 
+    <Layout>
+      <div></div>
+      <Content>
+        <div>
+          <WingBlank>
+            <Title>輸入您的 Google Sheet 網址</Title>
+          </WingBlank>
+          <WingBlank>
+            <InputItem
+              value={spreadSheetUrl}
+              placeholder="Google sheet 網址"
+              onChange={inputChangeHandler}
+            />
+          </WingBlank>
+          <WhiteSpace size="xl" />
+        </div>
+      </Content>
+      <div>
+        <WingBlank size="lg">
+          <Button type="primary" onClick={submitBtnHandler}>完成</Button>
+        </WingBlank>
+      </div>
+    </Layout>
   );
 }

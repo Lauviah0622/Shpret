@@ -8,21 +8,19 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import "antd/dist/antd.css";
+import "antd-mobile/dist/antd-mobile.css";
 
 import Entry from "../Pages/Entry";
 import Append from "../Pages/Append";
 import SelectFile from "../Pages/SelectFile";
-
+import Signin from "../Pages/Signin";
 import useSignHook from "../hooks/useSign";
 
 const AppWrapper = styled.div`
-  display: grid;
-  justify-content: center;
-  align-content: center;
   min-height: 100vh;
 `;
 
-const redirectByJudgeCreator = (judger:() => boolean, to: string) => {
+const redirectByJudgeCreator = (judger: () => boolean, to: string) => {
   return function ({ children }: { children: React.ReactNode }): JSX.Element {
     const history = useHistory();
     const judge = judger();
@@ -39,8 +37,8 @@ const redirectByJudgeCreator = (judger:() => boolean, to: string) => {
 // * 把 Redirect 的功能從 component 剝出來
 const RedirectIfNoSignIn = redirectByJudgeCreator(() => {
   const [signState] = useSignHook();
-  return !signState
-}, '/')
+  return !signState;
+}, "/");
 
 function App() {
   const [signState] = useSignHook();
@@ -52,18 +50,17 @@ function App() {
           <Route exact path="/">
             <Entry />
           </Route>
-
-          <Route path="/append">
-            <RedirectIfNoSignIn>
-              <Append />
-            </RedirectIfNoSignIn>
-          </Route>
-          <Route path="/selectFile">
-            <RedirectIfNoSignIn>
-              <SelectFile />
-            </RedirectIfNoSignIn>
-          </Route>
-          <Redirect to={!signState ? "/" : "/append"} />
+          <Route
+            path="/:spreadSheetId"
+            render={(routeProps) => {
+              const render = signState ? (
+                JSON.stringify(signState)
+              ) : (
+                <Signin {...routeProps} />
+              );
+              return render;
+            }}
+          ></Route>
         </Switch>
       </AppWrapper>
     </Router>
