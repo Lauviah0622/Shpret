@@ -8,10 +8,12 @@ import type { RootState } from "../../store";
 
 type FileState = {
   spreadSheetId: string;
+  sheetName: string;
 };
 
 const initialState: FileState = {
   spreadSheetId: "",
+  sheetName: "",
 };
 
 const setFile: CaseReducer<FileState, PayloadAction<string>> = (
@@ -21,16 +23,26 @@ const setFile: CaseReducer<FileState, PayloadAction<string>> = (
   state.spreadSheetId = payload;
 };
 
+const setSheet: CaseReducer<FileState, PayloadAction<string>> = (
+  state,
+  { payload }
+) => {
+  state.sheetName = payload;
+};
+
 const fileSlice = createSlice({
   name: "fileState",
   initialState,
   reducers: {
     setFile,
+    setSheet
   },
 });
 
 export default fileSlice.reducer;
-export const { setFile: createFileAction } = fileSlice.actions;
+export const { setFile: createSetFileAction, setSheet: createSetSheetAction } = fileSlice.actions;
 
 export type { FileState };
-export const spreadSheetIdSelector: (state: RootState) => FileState["spreadSheetId"] = (state) => state.fileState.spreadSheetId;
+export const fileStateSelector: (
+  state: RootState
+) => FileState = (state) => state.fileState;

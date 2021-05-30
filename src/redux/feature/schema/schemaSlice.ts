@@ -31,6 +31,7 @@ const schemaSlice: Slice<SchemaState> = createSlice({
 
 export const schemaSelector = (state: RootState):SchemaState['schema'] => state.schemaState.schema
 
+// TODO 之後要補 type
 export const { setSchema: createSchemaAction } = schemaSlice.actions;
 export default schemaSlice.reducer;
 export type { SchemaState };

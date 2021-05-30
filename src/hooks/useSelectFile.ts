@@ -1,18 +1,23 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
   FileState,
-  spreadSheetIdSelector,
-  createFileAction,
+  fileStateSelector,
+  createSetFileAction,
+  createSetSheetAction
 } from "../redux/feature/file/fileSlice";
 
 export default function useSelectFile() {
-  const spreadSheetId = useSelector(spreadSheetIdSelector);
+  const file = useSelector(fileStateSelector);
 
   const dispatch = useDispatch();
 
   const setSpreadSheetId = (id: string): void => {
-    dispatch(createFileAction(id));
+    dispatch(createSetFileAction(id));
   };
 
-  return [spreadSheetId, setSpreadSheetId] as const
+  const setSheetName = (name: string):void => {
+    dispatch(createSetSheetAction(name))
+  }
+
+  return [file, setSpreadSheetId, setSheetName] as const
 }
