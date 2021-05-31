@@ -8,10 +8,12 @@ import type { RootState } from "../../store";
 
 type SpreadSheetState = {
   id: string;
+  fields: string[];
 };
 
 const initialState: SpreadSheetState = {
   id: "",
+  fields: []
 };
 
 const setId: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
@@ -21,18 +23,25 @@ const setId: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
   state.id = payload;
 };
 
+const setFields: CaseReducer<SpreadSheetState, PayloadAction<string[]>> = (
+  state,
+  { payload }
+) => {
+  state.fields = payload;
+};
+
 const fileSlice = createSlice({
   name: "spreadSheetState",
   initialState,
   reducers: {
-    setId
+    setId,
+    setFields
   },
 });
 
 export default fileSlice.reducer;
-export const { setId: createSetIdAction } = fileSlice.actions;
+export const { setId: createSetIdAction, setFields: createSetFieldsAction } = fileSlice.actions;
 
 export type { SpreadSheetState };
-export const spreadSheetStateSelector: (
-  state: RootState
-) => SpreadSheetState = (state) => state.spreadSheetState;
+export const spreadSheetStateSelector: (state: RootState) => SpreadSheetState =
+  (state) => state.spreadSheetState;

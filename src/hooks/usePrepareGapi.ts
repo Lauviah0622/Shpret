@@ -8,7 +8,9 @@ async function prepareGapi(cb: (authInstance: any) => void) {
     console.log("import Gapi success");
     await loadGapi();
     console.log("load Gapi sucess");
-    await initGpiClient();
+    const res = await initGpiClient();
+    console.log(res);
+    
     console.log("init Gapi success");
     console.log("======== Gapi prepare end ========");
 

@@ -37,13 +37,19 @@ export function loadGapi() {
   });
 }
 
-export function initGpiClient() {
-  return gapi.client.init({
-    apiKey: ENV.API_KEY,
-    clientId: ENV.CLIENT_ID,
-    discoveryDocs: ENV.DISCOVERY_DOCS_ARRAY,
-    scope: ENV.SCOPE,
-  });
+export async function initGpiClient() {
+  try {
+    const res = await gapi.client.init({
+      apiKey: ENV.API_KEY,
+      clientId: ENV.CLIENT_ID,
+      discoveryDocs: ENV.DISCOVERY_DOCS_ARRAY,
+      scope: ENV.SCOPE,
+    });
+
+    console.log(res);
+  } catch(err) {
+    throw err
+  }
 }
 
 

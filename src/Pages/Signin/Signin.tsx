@@ -1,17 +1,15 @@
 import React, { useEffect } from "react";
-import {
-  RouteComponentProps,
-  RouterProps,
-  useHistory,
-  useLocation,
-} from "react-router-dom";
+import { RouteComponentProps, useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { Button, WhiteSpace, WingBlank, InputItem } from "antd-mobile";
-import useSetSpreadSheetId from "../../hooks/useSetSpreadSheetId";
-import { spreadSheetStateSelector } from '../../redux/feature/spreadSheet/spreadSheetSlice';
-import { useSelector } from "react-redux";
+import {
+  spreadSheetStateSelector,
+  createSetIdAction,
+  SpreadSheetState,
+} from "../../redux/feature/spreadSheet/spreadSheetSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-
+import useSignHook from "../../hooks/useSign";
 
 const Layout = styled.div`
   min-height: 100vh;
@@ -26,25 +24,51 @@ const Content = styled.div`
   align-items: center;
 `;
 
-export default function Signin({ match }: RouteComponentProps<{spreadSheetId: string}>) {
-  const location = useLocation();
-  const history = useHistory()
-  const spreadSheetState = useSelector(spreadSheetStateSelector)
-  
+function useTransUrl(location: any, history: any) {
   useEffect(() => {
-    const match = location.pathname.match(
+    const sheetIDMatch = location.pathname.match(/\/([\w\-]{40,})$/);
+    if (sheetIDMatch) {
+      return;
+    }
+    const sheetUrlMatch = location.pathname.match(
       /docs\.google\.com\/spreadsheets\/d\/([\w\-]{40,})\//
     );
-    if (match) {
-      console.log(match[1]);
-      history.push(`/${match[1]}`)
+    if (sheetUrlMatch) {
+      console.log("url");
+      history.push(`/${sheetUrlMatch[1]}`);
+      return;
     }
-    
-  }, [location])
-  useSetSpreadSheetId(match.params.spreadSheetId);
+    history.push(`/`);
+  }, [location, history]);
+}
+
+function useUpdateIdByUrl(location: any, dispatch: any) {
+  useEffect(() => {
+    const sheetIDMatch = location.pathname.match(/\/([\w\-]{40,})$/);
+    if (sheetIDMatch) {
+      console.log("only Id");
+      dispatch(createSetIdAction(sheetIDMatch[1]));
+      return;
+    }
+  });
+}
+
+export default function Signin({
+  match,
+}: RouteComponentProps<{ spreadSheetId: string }>) {
+  const location = useLocation();
+  const history = useHistory();
+  const dispatch = useDispatch<SpreadSheetState>();
+  const spreadSheetState = useSelector(spreadSheetStateSelector);
+
+  useTransUrl(location, history);
+  useUpdateIdByUrl(location, dispatch);
+
+  const [signState, signIn] = useSignHook();
 
   const submitBtnHandler = () => {
-    console.log("123123");
+    signIn();
+    console.log(spreadSheetState.id);
     console.log(location);
     console.log(match);
   };
@@ -70,7 +94,7 @@ export default function Signin({ match }: RouteComponentProps<{spreadSheetId: st
       <div>
         <WingBlank size="lg">
           <Button type="primary" onClick={submitBtnHandler}>
-            完成
+            Login
           </Button>
         </WingBlank>
       </div>

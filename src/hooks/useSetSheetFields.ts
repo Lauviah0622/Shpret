@@ -1,25 +1,20 @@
 import { Dispatch, useEffect } from "react";
 
 import useSign from "./useSign";
-import useSelectFile from "./useSetSpreadSheetId";
 
 import {
   createSchemaAction,
-  SchemaState,
 } from "../redux/feature/schema/schemaSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { spreadSheetStateSelector, createSetFieldsAction } from '../redux/feature/spreadSheet/spreadSheetSlice';
 import { getFields } from "../gpai/spreadSheet";
-import { Action } from "redux";
-import { ActionCreatorWithPayload } from "@reduxjs/toolkit";
 
-async function getSheetFields(spreadSheetId: string, sheetName: string) {
+async function getSheetFields(spreadSheetId: string) {
   try {
     const sheetFields = await getFields(spreadSheetId, "1:1");
     return sheetFields.result
-
-
   } catch (err) {
-
+    return err
   }
 }
 
@@ -28,14 +23,13 @@ function updateFields(
   dispatcher: Dispatch<any>,
   fieldFromSheet: string[]
 ) {
-  dispatcher(createSchemaAction(fieldFromSheet));
+  dispatcher(createSetFieldsAction(fieldFromSheet));
 }
 
 export default async function useSetSheetFields() {
-
+  const { id: spreadSheetId } = useSelector(spreadSheetStateSelector);
 
   const [signState] = useSign();
-  const [file] = useSelectFile();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -43,7 +37,7 @@ export default async function useSetSheetFields() {
       console.log('fetach!!');
       try {
         if (!signState) throw Error('no login')
-        const fields = await getSheetFields(file.spreadSheetId, file.sheetName);
+        const fields = await getSheetFields(spreadSheetId);
         updateFields(dispatch, fields.values[0]);
       } catch (err) {
         console.log(err);
@@ -52,7 +46,5 @@ export default async function useSetSheetFields() {
     };
 
     fetchField()
-  }, [signState, file, dispatch, ]);
-
-  return [] as const;
+  }, [signState, spreadSheetId]);
 }

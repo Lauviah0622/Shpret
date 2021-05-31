@@ -11,7 +11,7 @@ import "antd/dist/antd.css";
 import "antd-mobile/dist/antd-mobile.css";
 
 import Entry from "../Pages/Entry";
-import Append from "../Pages/Append";
+import Main from "../Pages/Main";
 import SelectFile from "../Pages/SelectFile";
 import Signin from "../Pages/Signin";
 import useSignHook from "../hooks/useSign";
@@ -54,7 +54,7 @@ function App() {
             path="/:spreadSheetId"
             render={(routeProps) => {
               const render = signState ? (
-                JSON.stringify(signState)
+                <Main {...routeProps} />
               ) : (
                 <Signin {...routeProps} />
               );
