@@ -2,58 +2,60 @@ import {
   CaseReducer,
   createSlice,
   PayloadAction,
-  PayloadActionCreator,
+  SliceCaseReducers,
 } from "@reduxjs/toolkit";
 import type { RootState } from "../../store";
 
 type SpreadSheetState = {
   id: string;
   fields: string[];
-  range: string;
+  headerRange: string;
+  sheetId: string;
 };
 
 const initialState: SpreadSheetState = {
   id: "",
   fields: [],
-  range: "",
-  
+  headerRange: "",
+  sheetId: "",
 };
 
-const setId: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
-  state,
-  { payload }
-) => {
-  state.id = payload;
-};
-const setRange: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
-  state,
-  { payload }
-) => {
-  state.range = payload;
-};
+type SpreadSheetReducer<P> = CaseReducer<SpreadSheetState, PayloadAction<P>>;
 
-const setFields: CaseReducer<SpreadSheetState, PayloadAction<string[]>> = (
-  state,
-  { payload }
-) => {
-  state.fields = payload;
+interface Reducers extends SliceCaseReducers<SpreadSheetState> {
+  setId: SpreadSheetReducer<string>;
+  setHeaderRange: SpreadSheetReducer<string>;
+  setFields: SpreadSheetReducer<string[]>;
+  setSheetId: SpreadSheetReducer<string>;
+}
+
+const reducers: Reducers = {
+  setId: (state, { payload }) => {
+    state.id = payload;
+  },
+  setHeaderRange: (state, { payload }) => {
+    state.headerRange = payload;
+  },
+  setFields: (state, { payload }) => {
+    state.fields = payload;
+  },
+  setSheetId: (state, { payload }) => {
+    state.sheetId = payload;
+  }
 };
 
 const fileSlice = createSlice({
   name: "spreadSheetState",
   initialState,
-  reducers: {
-    setId,
-    setFields,
-    setRange
-  },
+  reducers,
 });
 
 export default fileSlice.reducer;
 export const {
   setId: createSetIdAction,
   setFields: createSetFieldsAction,
-  setRange: createSetRangeAction
+  setHeaderRange: createSetRangeAction,
+  setSheetId: createsetSheetIdAction,
 } = fileSlice.actions;
 
 export type { SpreadSheetState };
