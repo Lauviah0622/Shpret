@@ -9,11 +9,14 @@ import type { RootState } from "../../store";
 type SpreadSheetState = {
   id: string;
   fields: string[];
+  range: string;
 };
 
 const initialState: SpreadSheetState = {
   id: "",
-  fields: []
+  fields: [],
+  range: "",
+  
 };
 
 const setId: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
@@ -21,6 +24,12 @@ const setId: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
   { payload }
 ) => {
   state.id = payload;
+};
+const setRange: CaseReducer<SpreadSheetState, PayloadAction<string>> = (
+  state,
+  { payload }
+) => {
+  state.range = payload;
 };
 
 const setFields: CaseReducer<SpreadSheetState, PayloadAction<string[]>> = (
@@ -35,12 +44,17 @@ const fileSlice = createSlice({
   initialState,
   reducers: {
     setId,
-    setFields
+    setFields,
+    setRange
   },
 });
 
 export default fileSlice.reducer;
-export const { setId: createSetIdAction, setFields: createSetFieldsAction } = fileSlice.actions;
+export const {
+  setId: createSetIdAction,
+  setFields: createSetFieldsAction,
+  setRange: createSetRangeAction
+} = fileSlice.actions;
 
 export type { SpreadSheetState };
 export const spreadSheetStateSelector: (state: RootState) => SpreadSheetState =

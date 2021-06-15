@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Button, WingBlank, TabBar } from "antd-mobile";
+import { TabBar } from "antd-mobile";
 import { RouteComponentProps } from "react-router-dom";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 import useSetSheetFields from "../../hooks/useSetSheetFields";
 import { spreadSheetStateSelector } from "../../redux/feature/spreadSheet/spreadSheetSlice";
+import Append from "./Append";
+import Layout from "../../Components/Layout";
 
 const PageWrapper = styled.div`
   display: grid;
@@ -18,69 +20,24 @@ const TabbarContainer = styled.div`
   bottom: 0;
 `;
 
-const Layout = styled.div`
-  box-sizing: border-box;
-  display: grid;
-  grid-template-rows: 10% auto 10%;
+const Title = styled.h1`
+  text-align: center;
 `;
-
-const Content = styled.div`
-  display: grid;
-  grid-template-columns: 1fr min(65ch, calc(100% - 64px)) 1fr;
-
-  & > * {
-    grid-column: 2;
-  }
-  align-items: center;
-`;
-
-const createFormItem = (field: string): JSX.Element => (<div>
-  {field}
-</div>);
-
-const createFormItemsFromFields = (fields: string[]) =>
-  fields.map((field) => createFormItem(field));
 
 type TabState = "append" | "view";
 
-const Append = ({ fields }: { fields: string[] }) => {
-  const formItems = createFormItemsFromFields(fields);
-  return (
-    <Layout>
-      <div>
-        <h3>Append</h3>
-      </div>
-      <Content>{formItems}</Content>
-      <div>
-        <WingBlank size="lg">
-          <Button type="primary">新增項目</Button>
-        </WingBlank>
-      </div>
-    </Layout>
-  );
-};
-
 const View = () => {
-  return (
-    <Layout>
-      <div></div>
-      <Content>
-        <h3>Viiw</h3>
-      </Content>
-      <div></div>
-    </Layout>
-  );
+  const header = <Title>View</Title>;
+  return <Layout header={header}>viewviewview</Layout>;
 };
 
-export default function Main({
-  match,
-}: RouteComponentProps<{ spreadSheetId: string }>) {
+export default function Main(
+  props: RouteComponentProps<{ spreadSheetId: string }>
+) {
   useSetSheetFields();
 
   const [tabState, setState] = useState<TabState>("append");
-
   const { fields } = useSelector(spreadSheetStateSelector);
-
   const content = {
     append: <Append fields={fields} />,
     view: <View />,

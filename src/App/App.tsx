@@ -17,7 +17,9 @@ import Signin from "../Pages/Signin";
 import useSignHook from "../hooks/useSign";
 
 const AppWrapper = styled.div`
+  margin: 0 auto;
   min-height: 100vh;
+  max-width: 500px;
 `;
 
 const redirectByJudgeCreator = (judger: () => boolean, to: string) => {
@@ -53,12 +55,14 @@ function App() {
           <Route
             path="/:spreadSheetId"
             render={(routeProps) => {
-              const render = signState ? (
-                <Main {...routeProps} />
-              ) : (
-                <Signin {...routeProps} />
-              );
-              return render;
+              switch (true) {
+                case !signState:
+                  return <Signin {...routeProps} />;
+                default:
+                  return <Main {...routeProps} />
+                  
+              }
+              // return render;
             }}
           ></Route>
         </Switch>
