@@ -53,7 +53,6 @@ export default function Entry(props: EntryProps) {
         }
       >
         <ContentWrapper>
-          <div>
             <WingBlank>
               <Title>Google SpreadSheet</Title>
             </WingBlank>
@@ -65,33 +64,6 @@ export default function Entry(props: EntryProps) {
               />
             </WingBlank>
             <WhiteSpace size="xl" />
-          </div>
-          <div>
-            <WingBlank>
-              <Title>輸入欄位位置</Title>
-            </WingBlank>
-            <WingBlank>
-              <InputItem
-                value={spreadSheetUrl}
-                placeholder="ex C2:C7"
-                onChange={inputChangeHandler}
-              />
-            </WingBlank>
-            <WhiteSpace size="xl" />
-          </div>
-          <div>
-            <WingBlank>
-              <Title>輸入表的名稱或第幾章表</Title>
-            </WingBlank>
-            <WingBlank>
-              <InputItem
-                value={spreadSheetUrl}
-                placeholder="Google sheet 網址"
-                onChange={inputChangeHandler}
-              />
-            </WingBlank>
-            <WhiteSpace size="xl" />
-          </div>
         </ContentWrapper>
       </Layout>
     </PageWrapper>

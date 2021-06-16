@@ -1,9 +1,9 @@
 export async function getFields(spreadsheetId: string, range: string) {
-  const schema = await gapi.client.sheets.spreadsheets.values.get({
+  const fields = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId,
     range: `!${range}`,
   });
-  return schema;
+  return fields;
 }
 
 export async function appendItemByField<TypeOfField extends Array<string>>(

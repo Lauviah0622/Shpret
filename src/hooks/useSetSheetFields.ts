@@ -2,9 +2,6 @@ import { Dispatch, useEffect } from "react";
 
 import useSign from "./useSign";
 
-import {
-  createSchemaAction,
-} from "../redux/feature/schema/schemaSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { spreadSheetStateSelector, createSetFieldsAction } from '../redux/feature/spreadSheet/spreadSheetSlice';
 import { getFields } from "../gpai/spreadSheet";
