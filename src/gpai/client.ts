@@ -18,9 +18,7 @@ export function importGapiScript():Promise<boolean> {
     script.id = "gapi";
     script.async = true;
     script.onload = () => {
-      setTimeout(() => {
-        resolve(true);
-      }, 3000);
+      resolve(true);
     };
     script.onerror = () => {
       reject(false);

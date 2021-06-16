@@ -3,18 +3,18 @@ import {
   HashRouter as Router,
   Switch,
   Route,
-  Redirect,
   useHistory,
 } from "react-router-dom";
 import styled from "styled-components";
+import { useSelector } from 'react-redux';
 import "antd/dist/antd.css";
 import "antd-mobile/dist/antd-mobile.css";
 
 import Entry from "../Pages/Entry";
 import Main from "../Pages/Main";
-import SelectFile from "../Pages/SelectFile";
 import Signin from "../Pages/Signin";
 import useSignHook from "../hooks/useSign";
+import {SpreadSheetState, spreadSheetStateSelector} from '../redux/feature/spreadSheet/spreadSheetSlice';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -44,20 +44,24 @@ const RedirectIfNoSignIn = redirectByJudgeCreator(() => {
 
 function App() {
   const [signState] = useSignHook();
+  const { sheetId, headerRange, id } = useSelector(spreadSheetStateSelector);
 
   return (
     <Router>
       <AppWrapper>
         <Switch>
-          <Route exact path="/">
-            <Entry />
+          <Route exact path="/"
+            render={routeProps => (<Entry {...routeProps} />)}>
+            
           </Route>
           <Route
             path="/:spreadSheetId"
-            render={(routeProps) => {
+            render={routeProps => {
               switch (true) {
                 case !signState:
                   return <Signin {...routeProps} />;
+                case !sheetId || !headerRange:
+                  return <Entry {...routeProps} />;
                 default:
                   return <Main {...routeProps} />
                   

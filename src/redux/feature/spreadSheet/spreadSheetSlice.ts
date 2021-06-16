@@ -6,11 +6,12 @@ import {
 } from "@reduxjs/toolkit";
 import type { RootState } from "../../store";
 
-type SpreadSheetState = {
+interface SpreadSheetState {
   id: string;
   fields: string[];
   headerRange: string;
   sheetId: string;
+  [key: string]: any
 };
 
 const initialState: SpreadSheetState = {
@@ -27,6 +28,7 @@ interface Reducers extends SliceCaseReducers<SpreadSheetState> {
   setHeaderRange: SpreadSheetReducer<string>;
   setFields: SpreadSheetReducer<string[]>;
   setSheetId: SpreadSheetReducer<string>;
+  setSpreadSheetState: SpreadSheetReducer<Partial<SpreadSheetState>>;
 }
 
 const reducers: Reducers = {
@@ -41,7 +43,12 @@ const reducers: Reducers = {
   },
   setSheetId: (state, { payload }) => {
     state.sheetId = payload;
-  }
+  },
+  setSpreadSheetState: (state, { payload }) => {
+    for (let prop in payload) {
+      state[prop] = payload[prop];
+    }
+  },
 };
 
 const fileSlice = createSlice({
@@ -55,7 +62,8 @@ export const {
   setId: createSetIdAction,
   setFields: createSetFieldsAction,
   setHeaderRange: createSetRangeAction,
-  setSheetId: createsetSheetIdAction,
+  setSheetId: createSetSheetIdAction,
+  setSpreadSheetState: createSetSpreadSheetState
 } = fileSlice.actions;
 
 export type { SpreadSheetState };

@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 import useSetSheetFields from "../../hooks/useSetSheetFields";
 import { spreadSheetStateSelector } from "../../redux/feature/spreadSheet/spreadSheetSlice";
-import Append from "./Append";
+import Append from "./AppendPannel";
 import Layout from "../../Components/Layout";
 
 const PageWrapper = styled.div`
@@ -31,8 +31,12 @@ const View = () => {
   return <Layout header={header}>viewviewview</Layout>;
 };
 
+interface MainProps extends RouteComponentProps<{ spreadSheetId: string }>{
+  
+}
+
 export default function Main(
-  props: RouteComponentProps<{ spreadSheetId: string }>
+  props: MainProps
 ) {
   useSetSheetFields();
 

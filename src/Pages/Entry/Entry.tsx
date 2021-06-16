@@ -1,59 +1,99 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { useHistory, RouteComponentProps } from "react-router-dom";
 
 import { Button, WhiteSpace, WingBlank, List, InputItem } from "antd-mobile";
 
-import useSignHook from "../../hooks/useSign";
-
-const Layout = styled.div`
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 10% auto 10%;
-`;
+import Layout from "../../Components/Layout";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../redux/store";
+import {
+  createSetSpreadSheetState,
+  spreadSheetStateSelector,
+  SpreadSheetState,
+} from "../../redux/feature/spreadSheet/spreadSheetSlice";
 
 const Title = styled.h3``;
 
-const Content = styled.div`
-  display: grid;
-  align-items: center;
+const PageWrapper = styled.div`
+  height: 100vh;
 `;
 
-export default function Entry() {
+const ContentWrapper = styled.div`
+  display: grid;
+  gap: 2em;
+`;
+
+interface EntryProps extends RouteComponentProps<{}> {}
+
+export default function Entry(props: EntryProps) {
   const [spreadSheetUrl, setSpreadSheetUrl] = useState<string>("");
+  const { headerRange, sheetId }: SpreadSheetState = useSelector(
+    spreadSheetStateSelector
+  );
+
+  const dispatch: AppDispatch = useDispatch();
   const history = useHistory();
 
   // 在 React 裡面要這樣用
-  const inputChangeHandler = (value:string) => {
+  const inputChangeHandler = (value: string) => {
     setSpreadSheetUrl(value);
   };
 
   const submitBtnHandler = () => {
-    history.push(`/${spreadSheetUrl}`)
-  }
+    history.push(`/${spreadSheetUrl}`);
+  };
   return (
-    <Layout>
-      <div></div>
-      <Content>
-        <div>
-          <WingBlank>
-            <Title>輸入您的 Google Sheet 網址</Title>
-          </WingBlank>
-          <WingBlank>
-            <InputItem
-              value={spreadSheetUrl}
-              placeholder="Google sheet 網址"
-              onChange={inputChangeHandler}
-            />
-          </WingBlank>
-          <WhiteSpace size="xl" />
-        </div>
-      </Content>
-      <div>
-        <WingBlank size="lg">
-          <Button type="primary" onClick={submitBtnHandler}>完成</Button>
-        </WingBlank>
-      </div>
-    </Layout>
+    <PageWrapper>
+      <Layout
+        footer={
+          <Button type="primary" onClick={submitBtnHandler}>
+            完成
+          </Button>
+        }
+      >
+        <ContentWrapper>
+          <div>
+            <WingBlank>
+              <Title>Google SpreadSheet</Title>
+            </WingBlank>
+            <WingBlank>
+              <InputItem
+                value={spreadSheetUrl}
+                placeholder="輸入您的 Google sheet 網址"
+                onChange={inputChangeHandler}
+              />
+            </WingBlank>
+            <WhiteSpace size="xl" />
+          </div>
+          <div>
+            <WingBlank>
+              <Title>輸入欄位位置</Title>
+            </WingBlank>
+            <WingBlank>
+              <InputItem
+                value={spreadSheetUrl}
+                placeholder="ex C2:C7"
+                onChange={inputChangeHandler}
+              />
+            </WingBlank>
+            <WhiteSpace size="xl" />
+          </div>
+          <div>
+            <WingBlank>
+              <Title>輸入表的名稱或第幾章表</Title>
+            </WingBlank>
+            <WingBlank>
+              <InputItem
+                value={spreadSheetUrl}
+                placeholder="Google sheet 網址"
+                onChange={inputChangeHandler}
+              />
+            </WingBlank>
+            <WhiteSpace size="xl" />
+          </div>
+        </ContentWrapper>
+      </Layout>
+    </PageWrapper>
   );
 }
