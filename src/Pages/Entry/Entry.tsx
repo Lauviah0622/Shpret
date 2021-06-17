@@ -13,7 +13,7 @@ import {
   SpreadSheetState,
 } from "../../redux/feature/spreadSheet/spreadSheetSlice";
 import useSignHook from "../../hooks/useSign";
-import useUrlInputState from './useUrlInputState';
+import useUrlInputState from "./useUrlInputState";
 import useSetSheetFields from "../../hooks/useSetSheetFields";
 
 const Title = styled.h3``;
@@ -77,47 +77,38 @@ interface EntryStates {
 }
 
 // TODO: 這裡的判斷可以做簡化，isSpreadSheetUrlValid 基本上就是控制 disable
-const getButtonByStates = (states: EntryStates): string | JSX.Element => {
+const getButtonAttrByStates = (states: EntryStates) => {
   const { isPending, isSpreadSheetUrlValid, isSignIn } = states;
-  if (isPending)
-    return (
-      <Button type="primary" loading disabled>
-        Loging...
-      </Button>
-    );
+
+  let buttonText: string = "";
+
+  if (isPending) buttonText = "Loging...";
 
   switch (true) {
-    case isSpreadSheetUrlValid && isSignIn:
-      return <Button type="primary">已登入，下一步</Button>;
-
+    case isSignIn:
+      buttonText = "已登入，下一步";
+      break;
     case isSpreadSheetUrlValid && !isSignIn:
-      return <Button type="primary">登入 google 帳戶</Button>;
-
-    case !isSpreadSheetUrlValid && isSignIn:
-      return (
-        <Button type="primary" disabled>已登入，下一步</Button>
-      );
-
-    case !isSpreadSheetUrlValid && !isSignIn:
-      return (
-        <Button type="primary" disabled>登入</Button>
-      );
+      buttonText = "登入 google 帳戶";
+      break;
+    case isPending:
+      buttonText = "Loging...";
+      break;
     default:
       break;
   }
-  // ? 基本上不會到這個，但這裡要怎麼做錯誤處理？
-  return <Button type="warning" disabled>Error</Button>;
+  return {
+    disabled: !isSpreadSheetUrlValid,
+    loading: isPending,
+    children: buttonText,
+  } as const;
 };
 
 export default function Entry(props: EntryProps) {
   const [isPending, setIsPending] = useState<EntryStates["isPending"]>(false);
-  const {
-    isDirty,
-    spreadSheetUrl,
-    spreadSheetId,
-    setSpreadSheetUrl
-  } = useUrlInputState()
-  
+  const { isDirty, spreadSheetUrl, spreadSheetId, setSpreadSheetUrl } =
+    useUrlInputState();
+
   const location = useLocation();
 
   //* 根據 url update Input 裡面的內容
@@ -142,16 +133,16 @@ export default function Entry(props: EntryProps) {
     signIn();
   };
 
-  const Button = getButtonByStates({
+  const buttonAttr = getButtonAttrByStates({
     isPending,
-    isSignIn: true,
+    isSignIn: isSignIn,
     isSpreadSheetUrlValid: !!spreadSheetId,
   });
 
-  const errorMessage = isDirty && !spreadSheetId && 'Eroor';
+  const errorMessage = isDirty && !spreadSheetId && "Eroor";
   return (
     <PageWrapper>
-      <Layout footer={Button}>
+      <Layout footer={<Button type="primary" onClick={loginHandler} {...buttonAttr}/>}>
         <ContentWrapper>
           <WingBlank>
             <Title>Google SpreadSheet</Title>
@@ -166,6 +157,7 @@ export default function Entry(props: EntryProps) {
             <ErrorMessage>{errorMessage}</ErrorMessage>
             <p>isDirty: {isDirty + ""}</p>
             <p>isSpreadSheetUrlValid: {spreadSheetId + ""}</p>
+            <p>isSignIn: {isSignIn + ""}</p>
           </WingBlank>
           <WhiteSpace size="xl" />
         </ContentWrapper>
