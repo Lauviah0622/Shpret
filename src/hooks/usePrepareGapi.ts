@@ -8,12 +8,9 @@ async function prepareGapi(cb: (authInstance: any) => void) {
     console.log("import Gapi success");
     await loadGapi();
     console.log("load Gapi sucess");
-    const res = await initGpiClient();
-    console.log(res);
-    
+    await initGpiClient();
     console.log("init Gapi success");
     console.log("======== Gapi prepare end ========");
-
     const authInstance = await gapi.auth2.getAuthInstance()
     cb(authInstance)
     
@@ -25,12 +22,13 @@ async function prepareGapi(cb: (authInstance: any) => void) {
   
 }
 
-export default function usePrepareGapiHook() {
+export default function usePrepareGapiHook(gapiCompleteCallback: (isSignIn:boolean, authInstance:any) => void) {
   const [gapiPrepareComplete, setGapiPrepareComplete] = useState<boolean>(false);
 
   useEffect(() => {
     prepareGapi((authInstance) => {
       setGapiPrepareComplete(true);
+      gapiCompleteCallback(authInstance.isSignedIn.get(), authInstance)
       console.log('auth!!!', authInstance.isSignedIn.get());
     });
   }, []);

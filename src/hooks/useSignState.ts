@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 
-import {createUserAction} from '../redux/feature/auth/authSlice';
+import {createSigninState} from '../redux/feature/auth/authSlice';
 
 import type { RootState } from '../redux/store';
 
@@ -43,13 +43,13 @@ export default function useSignHook() {
   const signIn = async () => {
     const isSignIn = await gapiSignIn();
     console.log('userId', isSignIn);
-    dispatch(createUserAction(isSignIn))  
+    dispatch(createSigninState(isSignIn))  
   }
   const signOut = async () => {
     const isSignOut = await gapiSignOut();
-    dispatch(createUserAction(!isSignOut))  
+    dispatch(createSigninState(!isSignOut))  
   }
   
   
-  return [signState, signIn, signOut] as const
+  return [signState, signIn, signOut] as const;
 };

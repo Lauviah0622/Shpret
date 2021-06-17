@@ -43,8 +43,7 @@ export async function initGpiClient() {
       discoveryDocs: ENV.DISCOVERY_DOCS_ARRAY,
       scope: ENV.SCOPE,
     });
-
-    console.log(res);
+    return res
   } catch(err) {
     throw err
   }

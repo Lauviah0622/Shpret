@@ -31,13 +31,9 @@ const View = () => {
   return <Layout header={header}>viewviewview</Layout>;
 };
 
-interface MainProps extends RouteComponentProps<{ spreadSheetId: string }>{
-  
-}
+interface MainProps extends RouteComponentProps<{ spreadSheetId: string }> {}
 
-export default function Main(
-  props: MainProps
-) {
+export default function Main(props: MainProps) {
   useSetSheetFields();
 
   const [tabState, setState] = useState<TabState>("append");

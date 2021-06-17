@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Dispatch } from "react";
 import styled from "styled-components";
 import { useHistory, useLocation, RouteComponentProps } from "react-router-dom";
 
@@ -12,7 +12,7 @@ import {
   spreadSheetStateSelector,
   SpreadSheetState,
 } from "../../redux/feature/spreadSheet/spreadSheetSlice";
-import useSignHook from "../../hooks/useSign";
+import useSignHook from "../../hooks/useSignState";
 import useUrlInputState from "./useUrlInputState";
 import useSetSheetFields from "../../hooks/useSetSheetFields";
 
@@ -50,30 +50,30 @@ function useTransUrl(pathname: string, history: any) {
     history.push(`/`);
   }, [location, history]);
 }
-/* 
-function useUpdateIdByUrl(pathname: string, dispatch: any) {
-  useEffect(() => {
-    const sheetIDMatch = location.pathname.match(/\/([\w\-]{40,})$/);
-    if (sheetIDMatch) {
-      console.log("only Id");
-      dispatch(createSetIdAction(sheetIDMatch[1]));
-      return;
-    }
-  });
-}
- */
 
-const extractSpreadIdFrom = (str: string): string | null => {
-  const urlMatchIdResult = str.match(
-    /docs\.google\.com\/spreadsheets\/d\/([\w\-]{40,})\//
-  );
-  return urlMatchIdResult ? urlMatchIdResult[1] : null;
-};
+
+function useUpdateInputByUrlEffect (location:LocationType, setSpreadSheetUrl: Dispatch<string>) {
+  useEffect(() => {
+    function updateIdByPathName(pathName: string) {
+      const spreadSheetUrlMatchArray = pathName.match(/[^\/].*/g);
+      if (spreadSheetUrlMatchArray) {
+        setSpreadSheetUrl(spreadSheetUrlMatchArray[0]);
+      }
+    }
+    updateIdByPathName(location.pathname);
+  }, [location]);
+}
+
+
 
 interface EntryStates {
   isPending: boolean;
   isSpreadSheetUrlValid: boolean;
   isSignIn: boolean;
+}
+
+type LocationType = {
+  pathname: string
 }
 
 // TODO: 這裡的判斷可以做簡化，isSpreadSheetUrlValid 基本上就是控制 disable
@@ -109,18 +109,10 @@ export default function Entry(props: EntryProps) {
   const { isDirty, spreadSheetUrl, spreadSheetId, setSpreadSheetUrl } =
     useUrlInputState();
 
-  const location = useLocation();
+  const location = useLocation<LocationType>();
 
   //* 根據 url update Input 裡面的內容
-  useEffect(() => {
-    function updateIdByPathName(pathName: string) {
-      const spreadSheetUrlMatchArray = pathName.match(/[^\/].*/g);
-      if (spreadSheetUrlMatchArray) {
-        setSpreadSheetUrl(spreadSheetUrlMatchArray[0]);
-      }
-    }
-    updateIdByPathName(location.pathname);
-  }, [location]);
+  useUpdateInputByUrlEffect(location, setSpreadSheetUrl)
 
   // 在 React 裡面要這樣用
   const inputChangeHandler = (value: string) => {

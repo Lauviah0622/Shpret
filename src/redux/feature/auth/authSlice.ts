@@ -14,7 +14,7 @@ const initialState: AuthState = {
 };
 
 // type 根 reducer 宣告在上面，然後再放下去
-const setUser: CaseReducer<AuthState, PayloadAction<boolean>> = (
+const setSigninState: CaseReducer<AuthState, PayloadAction<boolean>> = (
   state,
   { payload }
 ) => {
@@ -28,11 +28,11 @@ const authSlice: Slice<AuthState> = createSlice({
   name: "authState",
   initialState,
   reducers: {
-    setUser,
+    setSigninState,
   },
 });
 
-export const { setUser: createUserAction } = authSlice.actions;
+export const { setSigninState: createSigninState } = authSlice.actions;
 // * 換個名子，不知道好不好，自己覺得是 Action creator 所以要換個名子
 
 export default authSlice.reducer;

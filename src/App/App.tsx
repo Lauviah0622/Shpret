@@ -13,7 +13,7 @@ import "antd-mobile/dist/antd-mobile.css";
 import Entry from "../Pages/Entry";
 import Main from "../Pages/Main";
 import Signin from "../Pages/Signin";
-import useSignHook from "../hooks/useSign";
+import useSignHook from "../hooks/useSignState";
 import {SpreadSheetState, spreadSheetStateSelector} from '../redux/feature/spreadSheet/spreadSheetSlice';
 
 const AppWrapper = styled.div`
@@ -58,8 +58,6 @@ function App() {
             path="/:spreadSheetId"
             render={routeProps => {
               switch (true) {
-                case !signState:
-                  return <Signin {...routeProps} />;
                 case !sheetId || !headerRange:
                   return <Entry {...routeProps} />;
                 default:
