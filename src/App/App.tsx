@@ -6,15 +6,12 @@ import {
   useHistory,
 } from "react-router-dom";
 import styled from "styled-components";
-import { useSelector } from 'react-redux';
 import "antd/dist/antd.css";
 import "antd-mobile/dist/antd-mobile.css";
 
 import Entry from "../Pages/Entry";
 import Main from "../Pages/Main";
-import Signin from "../Pages/Signin";
 import useSignHook from "../hooks/useSignState";
-import {SpreadSheetState, spreadSheetStateSelector} from '../redux/feature/spreadSheet/spreadSheetSlice';
 
 const AppWrapper = styled.div`
   margin: 0 auto;
@@ -44,7 +41,6 @@ const RedirectIfNoSignIn = redirectByJudgeCreator(() => {
 
 function App() {
   const [signState] = useSignHook();
-  const { sheetId, headerRange, id } = useSelector(spreadSheetStateSelector);
 
   return (
     <Router>
@@ -56,14 +52,14 @@ function App() {
           </Route>
           <Route
             path="/:spreadSheetId"
-            render={routeProps => {
-              switch (true) {
-                case !sheetId || !headerRange:
-                  return <Entry {...routeProps} />;
-                default:
-                  return <Main {...routeProps} />
+            render={routeProps => {return <Entry {...routeProps} />
+              // switch (true) {
+              //   case !signState:
+              //     return <Entry {...routeProps} />;
+              //   default:
+              //     return <Main {...routeProps} />
                   
-              }
+              // }
               // return render;
             }}
           ></Route>

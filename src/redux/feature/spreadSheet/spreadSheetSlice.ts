@@ -4,50 +4,51 @@ import {
   PayloadAction,
   SliceCaseReducers,
 } from "@reduxjs/toolkit";
-import type { RootState } from "../../store";
+import type { RootState, AppDispatch } from "../../store";
+import { getSpreadSheet } from "../../../gpai/spreadSheet";
 
-interface SpreadSheetState {
-  id: string;
-  fields: string[];
-  headerRange: string;
-  sheetId: string;
-  [key: string]: any
+type Sheet = {
+  sheetId: number;
+  title: string;
+  index: number;
+  headerRange: string | null;
+  headerFields: string[];
 };
 
+interface SpreadSheetState {
+  id: string | null;
+  current: {
+    sheetIndex: string | null;
+  };
+  sheets: Sheet[];
+  title: string | null;
+}
+
 const initialState: SpreadSheetState = {
-  id: "",
-  fields: [],
-  headerRange: "",
-  sheetId: "",
+  id: null,
+  current: {
+    sheetIndex: null,
+  },
+  sheets: [],
+  title: null,
 };
 
 type SpreadSheetReducer<P> = CaseReducer<SpreadSheetState, PayloadAction<P>>;
 
 interface Reducers extends SliceCaseReducers<SpreadSheetState> {
   setId: SpreadSheetReducer<string>;
-  setHeaderRange: SpreadSheetReducer<string>;
-  setFields: SpreadSheetReducer<string[]>;
-  setSheetId: SpreadSheetReducer<string>;
-  setSpreadSheetState: SpreadSheetReducer<Partial<SpreadSheetState>>;
+  setSheets: SpreadSheetReducer<Sheet[]>;
 }
 
 const reducers: Reducers = {
   setId: (state, { payload }) => {
     state.id = payload;
   },
-  setHeaderRange: (state, { payload }) => {
-    state.headerRange = payload;
+  setSheets: (state, { payload }) => {
+    state.sheets = payload;
   },
-  setFields: (state, { payload }) => {
-    state.fields = payload;
-  },
-  setSheetId: (state, { payload }) => {
-    state.sheetId = payload;
-  },
-  setSpreadSheetState: (state, { payload }) => {
-    for (let prop in payload) {
-      state[prop] = payload[prop];
-    }
+  setTitle: (state, { payload }) => {
+    state.title = payload;
   },
 };
 
@@ -57,14 +58,46 @@ const fileSlice = createSlice({
   reducers,
 });
 
+const { setId, setTitle, setSheets } = fileSlice.actions;
+
+type GoogleSheetType = {
+  properties: {
+    sheetId: number;
+    title: string;
+    index: number;
+    [propName: string]: any;
+  };
+  [propName: string]: any;
+};
+
+const transFetchSheet = ({ properties }: GoogleSheetType): Sheet => {
+  const { sheetId, index, title } = properties;
+  return {
+    sheetId,
+    title,
+    index,
+    headerRange: null,
+    headerFields: [],
+  };
+};
+
+export const fetchSpreadSheet =
+  (spreadSheetId: string) =>
+  async (dispatch: AppDispatch, getState: () => SpreadSheetState) => {
+    try {
+      const { result } = await getSpreadSheet(spreadSheetId);
+      console.log(result);
+      dispatch(setId(spreadSheetId));
+      dispatch(setTitle(result.properties.title));
+      const sheets: Sheet[] = result.sheets.map(transFetchSheet);
+      dispatch(setSheets(sheets));
+      return true;
+    } catch (err) {
+      return false
+    }
+  };
+
 export default fileSlice.reducer;
-export const {
-  setId: createSetIdAction,
-  setFields: createSetFieldsAction,
-  setHeaderRange: createSetRangeAction,
-  setSheetId: createSetSheetIdAction,
-  setSpreadSheetState: createSetSpreadSheetState
-} = fileSlice.actions;
 
 export type { SpreadSheetState };
 export const spreadSheetStateSelector: (state: RootState) => SpreadSheetState =

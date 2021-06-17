@@ -56,7 +56,7 @@ export default function useUrlInputState() {
     spreadSheetUrl: ''
   })
 
-  const spreadSheetId = useMemo(
+  const idExtractFromUrl = useMemo(
     () => extractSpreadIdFrom(state.spreadSheetUrl),
     [state.spreadSheetUrl]
   );
@@ -70,7 +70,7 @@ export default function useUrlInputState() {
 
 
   return {
-    spreadSheetId,
+    idExtractFromUrl,
     spreadSheetUrl: state.spreadSheetUrl,
     isDirty: state.isDirty,
     setSpreadSheetUrl

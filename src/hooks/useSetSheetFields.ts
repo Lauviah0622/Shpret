@@ -3,8 +3,9 @@ import { Dispatch, useEffect } from "react";
 import useSign from "./useSignState";
 
 import { useDispatch, useSelector } from "react-redux";
-import { spreadSheetStateSelector, createSetFieldsAction } from '../redux/feature/spreadSheet/spreadSheetSlice';
+import { spreadSheetStateSelector } from '../redux/feature/spreadSheet/spreadSheetSlice';
 import { getFields } from "../gpai/spreadSheet";
+import {AppDispatch} from '../redux/store';
 
 async function getSheetFields(spreadSheetId: string) {
   try {
@@ -15,14 +16,10 @@ async function getSheetFields(spreadSheetId: string) {
   }
 }
 
-function updateFields(
-  // TODO 這個 dispatch 也要補 Type
-  dispatcher: Dispatch<any>,
-  fieldFromSheet: string[]
-) {
-  dispatcher(createSetFieldsAction(fieldFromSheet));
-}
 
+
+
+// !TODO 這裡的 fetch 要抓到 Redux 裡面，hooks 只留下 pure state 的操作
 export default async function useSetSheetFields() {
   const { id: spreadSheetId } = useSelector(spreadSheetStateSelector);
 
@@ -34,8 +31,9 @@ export default async function useSetSheetFields() {
       console.log('fetach!!');
       try {
         if (!signState) throw Error('no login')
-        const fields = await getSheetFields(spreadSheetId);
-        updateFields(dispatch, fields.values[0]);
+        const fields = await getSheetFields(spreadSheetId as string);
+        //TODO updateFields 之後換新的上去
+        // updateFields(dispatch, fields.values[0]);
       } catch (err) {
         console.log(err);
         // TODO fetch error UI

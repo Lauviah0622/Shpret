@@ -22,3 +22,11 @@ export async function appendItemByField<TypeOfField extends Array<string>>(
     }
   );
 }
+
+export async function getSpreadSheet(spreadsheetId: string) {
+  const spreadSheetData = await gapi.client.sheets.spreadsheets.get({
+    spreadsheetId,
+    includeGridData: false,
+  });
+  return spreadSheetData
+}

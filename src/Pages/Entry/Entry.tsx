@@ -1,20 +1,15 @@
-import React, { useState, useEffect, useMemo, Dispatch } from "react";
+import React, { useState, useEffect, Dispatch } from "react";
 import styled from "styled-components";
-import { useHistory, useLocation, RouteComponentProps } from "react-router-dom";
+import { useLocation, RouteComponentProps } from "react-router-dom";
 
-import { Button, WhiteSpace, WingBlank, List, InputItem } from "antd-mobile";
+import { Button, WhiteSpace, WingBlank, InputItem } from "antd-mobile";
 
 import Layout from "../../Components/Layout";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../redux/store";
-import {
-  createSetIdAction,
-  spreadSheetStateSelector,
-  SpreadSheetState,
-} from "../../redux/feature/spreadSheet/spreadSheetSlice";
 import useSignHook from "../../hooks/useSignState";
 import useUrlInputState from "./useUrlInputState";
-import useSetSheetFields from "../../hooks/useSetSheetFields";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSpreadSheet } from "../../redux/feature/spreadSheet/spreadSheetSlice";
+import {RootState} from '../../redux/store';
 
 const Title = styled.h3``;
 
@@ -32,25 +27,6 @@ const ContentWrapper = styled.div`
 `;
 
 interface EntryProps extends RouteComponentProps<{}> {}
-
-function useTransUrl(pathname: string, history: any) {
-  useEffect(() => {
-    const sheetIDMatch = location.pathname.match(/\/([\w\-]{40,})$/);
-    if (sheetIDMatch) {
-      return;
-    }
-    const sheetUrlMatch = location.pathname.match(
-      /docs\.google\.com\/spreadsheets\/d\/([\w\-]{40,})\//
-    );
-    if (sheetUrlMatch) {
-      console.log("url");
-      history.push(`/${sheetUrlMatch[1]}`);
-      return;
-    }
-    history.push(`/`);
-  }, [location, history]);
-}
-
 
 function useUpdateInputByUrlEffect (location:LocationType, setSpreadSheetUrl: Dispatch<string>) {
   useEffect(() => {
@@ -80,33 +56,35 @@ type LocationType = {
 const getButtonAttrByStates = (states: EntryStates) => {
   const { isPending, isSpreadSheetUrlValid, isSignIn } = states;
 
-  let buttonText: string = "";
-
-  if (isPending) buttonText = "Loging...";
+  const buttonAttr = {
+    disabled: !isSpreadSheetUrlValid,
+    loading: isPending,
+    children: "",
+  }
 
   switch (true) {
     case isSignIn:
-      buttonText = "已登入，下一步";
+      buttonAttr.children = "已登入，下一步讀取表單";
       break;
     case isSpreadSheetUrlValid && !isSignIn:
-      buttonText = "登入 google 帳戶";
+      buttonAttr.children = "登入 google 帳戶";
       break;
     case isPending:
-      buttonText = "Loging...";
+      buttonAttr.children = "Loging...";
       break;
     default:
       break;
   }
-  return {
-    disabled: !isSpreadSheetUrlValid,
-    loading: isPending,
-    children: buttonText,
-  } as const;
+  return buttonAttr;
 };
 
+
+
 export default function Entry(props: EntryProps) {
+  const dispatch = useDispatch();
   const [isPending, setIsPending] = useState<EntryStates["isPending"]>(false);
-  const { isDirty, spreadSheetUrl, spreadSheetId, setSpreadSheetUrl } =
+  const spreadSheetId = useSelector<RootState>((state) => state.spreadSheetState.id)
+  const { isDirty, spreadSheetUrl, idExtractFromUrl, setSpreadSheetUrl } =
     useUrlInputState();
 
   const location = useLocation<LocationType>();
@@ -125,16 +103,23 @@ export default function Entry(props: EntryProps) {
     signIn();
   };
 
+  const getSpreadSheetHandler = async () => {
+    if (!idExtractFromUrl) return
+    const state = await dispatch(fetchSpreadSheet(idExtractFromUrl))
+    console.log(state);
+
+  }
+
   const buttonAttr = getButtonAttrByStates({
     isPending,
     isSignIn: isSignIn,
-    isSpreadSheetUrlValid: !!spreadSheetId,
+    isSpreadSheetUrlValid: !!idExtractFromUrl,
   });
 
-  const errorMessage = isDirty && !spreadSheetId && "Eroor";
+  const errorMessage = isDirty && !idExtractFromUrl && "Eroor";
   return (
     <PageWrapper>
-      <Layout footer={<Button type="primary" onClick={loginHandler} {...buttonAttr}/>}>
+      <Layout footer={<Button type="primary" onClick={!!idExtractFromUrl ? getSpreadSheetHandler : loginHandler} {...buttonAttr}/>}>
         <ContentWrapper>
           <WingBlank>
             <Title>Google SpreadSheet</Title>
@@ -148,8 +133,9 @@ export default function Entry(props: EntryProps) {
             />
             <ErrorMessage>{errorMessage}</ErrorMessage>
             <p>isDirty: {isDirty + ""}</p>
-            <p>isSpreadSheetUrlValid: {spreadSheetId + ""}</p>
+            <p>isSpreadSheetUrlValid: {idExtractFromUrl + ""}</p>
             <p>isSignIn: {isSignIn + ""}</p>
+            <p>spreadSheetId: {spreadSheetId + ""}</p>
           </WingBlank>
           <WhiteSpace size="xl" />
         </ContentWrapper>
