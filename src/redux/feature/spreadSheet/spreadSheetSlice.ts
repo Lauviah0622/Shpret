@@ -85,15 +85,18 @@ export const fetchSpreadSheet =
   (spreadSheetId: string) =>
   async (dispatch: AppDispatch, getState: () => SpreadSheetState) => {
     try {
-      const { result } = await getSpreadSheet(spreadSheetId);
-      console.log(result);
+      const spreadSheetResponse = await getSpreadSheet(spreadSheetId);
+      console.log("fetchSpreadSheet");
+      console.log(spreadSheetResponse);
+      const { result } = spreadSheetResponse;
       dispatch(setId(spreadSheetId));
       dispatch(setTitle(result.properties.title));
       const sheets: Sheet[] = result.sheets.map(transFetchSheet);
       dispatch(setSheets(sheets));
       return true;
     } catch (err) {
-      return false
+      console.log("fetchSpreadSheet:error", err);
+      return Promise.reject(err)
     }
   };
 

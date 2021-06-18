@@ -1,79 +1,135 @@
-import { useReducer, useMemo } from "react";
+import { useReducer, useMemo, useRef } from "react";
+import { useDispatch } from "react-redux";
+
+import { RootState } from "../../redux/store";
+import useSignHook from "../../hooks/useSignState";
+import { fetchSpreadSheet } from "../../redux/feature/spreadSheet/spreadSheetSlice";
 
 const TYPE = {
-  updateSpreadSheelUrl: "spreadSheetUrl.update",
-  updateVarifiedSpreadSheetId: "varificatedSpreadSheetId.update"
+  updateState: "spreadSheetUrl.update",
 } as const;
 
-type SpreadSheetUrlInputState = {
+export type SpreadSheetUrlInputState = {
   isDirty: boolean;
-  spreadSheetUrl: string;
+  url: string;
+  urlState: "noId" | "validId" | "invalidId" | "unverifiedId";
 };
 
-type ActionType = { type: typeof TYPE.updateSpreadSheelUrl; payload: string }
+type ActionType = {
+  type: typeof TYPE.updateState;
+  payload: Partial<SpreadSheetUrlInputState>;
+};
 
-
+const URL_MATCH_REGEX = /docs\.google\.com\/spreadsheets\/d\/([\w\-]{40,})\//;
+const extractIdFromUrl = (url: string): string | null => {
+  const urlMatchIdResult = url.match(URL_MATCH_REGEX);
+  return urlMatchIdResult ? urlMatchIdResult[1] : null;
+};
 
 function UrlInputReducer(
   state: SpreadSheetUrlInputState,
   { type, payload }: ActionType
 ): SpreadSheetUrlInputState {
   switch (type) {
-    case TYPE.updateSpreadSheelUrl:
-      {
-
-        return {
-          ...state,
-          spreadSheetUrl: payload,
-          isDirty: true,
-        };
-
-      }
-
+    case TYPE.updateState: {
+      return {
+        ...state,
+        ...payload,
+      };
+    }
     default:
       throw new Error();
   }
 }
 
-const URL_MATCH_REGEX = /docs\.google\.com\/spreadsheets\/d\/([\w\-]{40,})\//;
-const extractSpreadIdFrom = (str: string): string | null => {
-  const urlMatchIdResult = str.match(URL_MATCH_REGEX);
-  return urlMatchIdResult ? urlMatchIdResult[1] : null;
+type CacheType = {
+  [url: string]: 1 | 0;
 };
+function useUrlValidationCache() {
+  const cacheRef = useRef<CacheType>({});
+  const set = (id: string, isIdValid: boolean) => {
+    cacheRef.current[id] = +isIdValid as 1 | 0;
+  };
 
-function asnycVerified(spreadSheetUrl:string):Promise<boolean> {
-  const res = new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true)
-    }, 1000)
-  }) as Promise<true> //? 這裡怎麼辦？
-  return res
+  const get = (id: string) => {
+    const idState = cacheRef.current[id];
+    return idState === undefined ? -1 : idState;
+    // -1 means no prop
+  };
+  return [get, set] as const;
 }
 
 export default function useUrlInputState() {
-  const [state, dispatch] = useReducer<typeof UrlInputReducer>(UrlInputReducer, {
-    isDirty: false,
-    spreadSheetUrl: ''
-  })
-
-  const idExtractFromUrl = useMemo(
-    () => extractSpreadIdFrom(state.spreadSheetUrl),
-    [state.spreadSheetUrl]
+  const reduxDispatch = useDispatch()
+  const [state, dispatch] = useReducer<typeof UrlInputReducer>(
+    UrlInputReducer,
+    {
+      isDirty: false,
+      url: "",
+      urlState: "noId",
+    }
   );
+  const [isSignIn] = useSignHook();
+  const [getIdCache, setIdCache] = useUrlValidationCache();
 
-  const setSpreadSheetUrl = (SpreadSheelUrl: string) => {
+  const setUrl = (url: string) => {
+    let urlState: SpreadSheetUrlInputState["urlState"];
+    const id = extractIdFromUrl(url);
+    if (!id) {
+      urlState = "noId";
+    } else {
+      const idCacheState = getIdCache(id);
+      urlState =
+        idCacheState === 1
+          ? "validId"
+          : idCacheState === 0
+          ? "invalidId"
+          : "unverifiedId";
+    }
+
     dispatch({
-      type: TYPE.updateSpreadSheelUrl,
-      payload: SpreadSheelUrl
-    })
-  }
+      type: TYPE.updateState,
+      payload: {
+        url,
+        urlState,
+        isDirty: true
+      },
+    });
+  };
 
+  const verifyUrl = async () => {
+    if (!isSignIn) return ;
+    if (state.urlState !== "unverifiedId") return;
+    const id = extractIdFromUrl(state.url) as string
+    try {
+      await reduxDispatch(fetchSpreadSheet(id));
+      setIdCache(id, true);
+      dispatch({
+        type: TYPE.updateState,
+        payload: {
+          urlState: 'validId',
+        },
+      });
+      
+    } catch (err) {
+      console.log('verify', err);
+      setIdCache(id, false);
+      dispatch({
+        type: TYPE.updateState,
+        payload: {
+          urlState: 'invalidId',
+          isDirty: false
+        },
+      });
+      return err
+    }
+  };
 
   return {
-    idExtractFromUrl,
-    spreadSheetUrl: state.spreadSheetUrl,
     isDirty: state.isDirty,
-    setSpreadSheetUrl
-  }
-
+    url: state.url,
+    urlState: state.urlState,
+    setUrl,
+    verifyUrl,
+  };
 }
