@@ -1,22 +1,14 @@
 import React, { useState, useEffect, Dispatch, MouseEventHandler } from "react";
 import styled from "styled-components";
-import { useLocation, RouteComponentProps } from "react-router-dom";
+import { useLocation, RouteComponentProps, useHistory } from "react-router-dom";
 
 import { Button, WhiteSpace, WingBlank, InputItem } from "antd-mobile";
 
 import Layout from "../../Components/Layout";
 import useSignHook from "../../hooks/useSignState";
 import useUrlInputState, { SpreadSheetUrlInputState } from "./useUrlInputState";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSpreadSheet } from "../../redux/feature/spreadSheet/spreadSheetSlice";
-import { RootState } from "../../redux/store";
-import { Breakpoint } from "antd/lib/_util/responsiveObserve";
 
 const Title = styled.h3``;
-
-const PageWrapper = styled.div`
-  height: 100vh;
-`;
 
 const ErrorMessage = styled.p`
   color: red;
@@ -130,8 +122,8 @@ const getUiAttrByState = ({
 
 interface EntryProps extends RouteComponentProps<{}> {}
 
-export default function Entry(props: EntryProps) {
-  const dispatch = useDispatch();
+export default function Auth(props: EntryProps) {
+  const history = useHistory();
   const [isPending, setIsPending] = useState<EntryStates["isPending"]>(false);
   const { isDirty, url, urlState, setUrl, verifyUrl } = useUrlInputState();
 
@@ -158,7 +150,9 @@ export default function Entry(props: EntryProps) {
     signIn: () => {
       signIn();
     },
-    nextPage: () => {},
+    nextPage: () => {
+      history.push("/init");
+    },
   };
   const [{ handlerName, ...buttonElementAttr }, errorMessageAttr] =
     getUiAttrByState({
@@ -170,9 +164,7 @@ export default function Entry(props: EntryProps) {
     });
   const onButtonClick = handlers[handlerName];
 
-  const errorMessage = isDirty && urlState;
   return (
-    <PageWrapper>
       <Layout
         footer={
           <Button
@@ -205,6 +197,5 @@ export default function Entry(props: EntryProps) {
           <WhiteSpace size="xl" />
         </ContentWrapper>
       </Layout>
-    </PageWrapper>
   );
 }

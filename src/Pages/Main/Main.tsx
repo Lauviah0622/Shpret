@@ -5,9 +5,11 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 import useSetSheetFields from "../../hooks/useSetSheetFields";
-import { spreadSheetStateSelector } from "../../redux/feature/spreadSheet/spreadSheetSlice";
+import { spreadSheetStateSelector, SpreadSheetState } from "../../redux/feature/spreadSheet/spreadSheetSlice";
 import Append from "./AppendPannel";
+import View from "./ViewPannel";
 import Layout from "../../Components/Layout";
+import useFetchSheetData from './useFetchSheetData';
 
 const PageWrapper = styled.div`
   display: grid;
@@ -26,20 +28,15 @@ const Title = styled.h1`
 
 type TabState = "append" | "view";
 
-const View = () => {
-  const header = <Title>View</Title>;
-  return <Layout header={header}>viewviewview</Layout>;
-};
-
 interface MainProps extends RouteComponentProps<{ spreadSheetId: string }> {}
 
 export default function Main(props: MainProps) {
-  useSetSheetFields();
-
   const [tabState, setState] = useState<TabState>("append");
-  const { fields } = useSelector(spreadSheetStateSelector);
+  const spreadSheetState:SpreadSheetState = useSelector(spreadSheetStateSelector);
+  const headerFields = spreadSheetState.sheets[spreadSheetState.current.sheetIndex as number]?.headerFields
+
   const content = {
-    append: <Append fields={fields} />,
+    append: <Append fields={headerFields} />,
     view: <View />,
   };
 

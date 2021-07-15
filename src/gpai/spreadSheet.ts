@@ -1,20 +1,30 @@
-export async function getFields(spreadsheetId: string, range: string) {
+export async function getFields(spreadsheetId: string, range: string, sheetName: string = '') {
   const fields = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: `!${range}`,
+    range: `${sheetName}!${range}`,
   });
   return fields;
 }
 
+type appendLocation = {
+  spreadsheetId: string,
+  range: string,
+  sheetId: string
+
+}
+
 export async function appendItemByField<TypeOfField extends Array<string>>(
-  spreadsheetId:string,
-  appendItem: Array<string>  // FixedLengthArray<string, TypeOfField["length"]>
+  { spreadsheetId,
+    range,
+    sheetId
+  }: appendLocation,
+  appendItem: Array<string>,
 ): Promise<any> {
   return await gapi.client.sheets.spreadsheets.values.append(
     {
       spreadsheetId,
-      valueInputOption: "RAW",
-      range: `1:1`,
+      valueInputOption: "USER_ENTERED",
+      range: `${sheetId}!${range}`,
     },
     {
       majorDimension: 'COLUMNS',

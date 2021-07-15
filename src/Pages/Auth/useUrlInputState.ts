@@ -1,7 +1,6 @@
-import { useReducer, useMemo, useRef } from "react";
+import { useReducer, useRef } from "react";
 import { useDispatch } from "react-redux";
 
-import { RootState } from "../../redux/store";
 import useSignHook from "../../hooks/useSignState";
 import { fetchSpreadSheet } from "../../redux/feature/spreadSheet/spreadSheetSlice";
 
@@ -26,7 +25,7 @@ const extractIdFromUrl = (url: string): string | null => {
   return urlMatchIdResult ? urlMatchIdResult[1] : null;
 };
 
-function UrlInputReducer(
+function urlInputReducer(
   state: SpreadSheetUrlInputState,
   { type, payload }: ActionType
 ): SpreadSheetUrlInputState {
@@ -61,8 +60,8 @@ function useUrlValidationCache() {
 
 export default function useUrlInputState() {
   const reduxDispatch = useDispatch()
-  const [state, dispatch] = useReducer<typeof UrlInputReducer>(
-    UrlInputReducer,
+  const [state, dispatch] = useReducer<typeof urlInputReducer>(
+    urlInputReducer,
     {
       isDirty: false,
       url: "",

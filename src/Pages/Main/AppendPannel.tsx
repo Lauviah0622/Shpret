@@ -30,10 +30,10 @@ function closest(el: EventTarget, selector: string) {
   return null;
 }
 
-const createFormItem = (field: string): JSX.Element => (
+const createFormItem = (field: string, key: string): JSX.Element => (
   <Field
-    name={field}
-    key={field}
+    name={key}
+    key={key}
     render={({ meta, input }) => (
       <div>
         {/* 這行真的沒辦法...不太可能讓 final form 的 input props 跟 antd-mobile 完全對上 */}
@@ -47,12 +47,8 @@ const createFormItem = (field: string): JSX.Element => (
   />
 );
 
-const createFormItemsFromFields = (fields: string[]) =>
-  fields.map((field) => createFormItem(field));
-  
-  
-  
-  
+const createFormItemsFromFields = (fields: string[] | null) =>
+  fields?.map((field, i) => createFormItem(field, `${i}_${field}`));
 
   
 interface RenderFormProps extends FormRenderProps {
@@ -104,12 +100,19 @@ interface Values {
 
 export default function Append({ fields }: { fields: string[] }) {
   /* Form */
-  const { id } = useSelector(spreadSheetStateSelector);
+  const spreadSheetState = useSelector(spreadSheetStateSelector);
 
+  const currentSheet = spreadSheetState.sheets[spreadSheetState.current.sheetIndex as number];
+  const range: string = currentSheet.headerRange?.match(/[a-zA-Z]/gm)?.join(':') as string
+  
   const formItems = createFormItemsFromFields(fields);
   const onSubmit = (value: Values) => {
     const valuesArray = Object.values(value);
-    appendItemByField(id, valuesArray);
+    appendItemByField({
+      spreadsheetId: spreadSheetState.id as string,
+      range,
+      sheetId: currentSheet.title
+    }, valuesArray);
   };
 
   const validate = (value: Values) => {
